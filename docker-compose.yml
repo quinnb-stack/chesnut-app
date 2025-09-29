@@ -1,0 +1,62 @@
+services:
+  api:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: on-failure
+    ports:
+      - "8080:80"
+    volumes:
+      - ./backend/app:/code/app 
+      - ./env:/code/env
+    depends_on:
+      db:
+        condition: service_healthy
+  herbal:
+    build: 
+      context: ./herbal-plant-app
+      dockerfile: Dockerfile
+    restart: on-failure
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./herbal-plant-app/app:/app
+      - /app/node_modules
+  smes:
+    build: 
+      context: ./smes-app
+      dockerfile: Dockerfile
+    restart: on-failure
+    ports:
+      - "5174:5174"
+    volumes:
+      - ./smes-app/app:/app
+      - /app/node_modules
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=root
+      - PMA_PASSWORD=57f0e9561da043c1
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: mariadb:11
+    restart: on-failure
+    environment:
+      - MYSQL_ROOT_PASSWORD=57f0e9561da043c1
+      - MARIADB_MYSQL_LOCALHOST_USER:true
+    volumes:
+      - ./db/:/docker-entrypoint-initdb.d
+      - ./dbconf.d/:/etc/mysql/conf.d
+      - db-persistent-data:/var/lib/mysql
+    ports:
+      - "3336:3306"
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh", "--su-mysql", "--connect"]
+volumes:
+  db-persistent-data:
