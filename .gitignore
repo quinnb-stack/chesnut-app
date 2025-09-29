@@ -26,7 +26,8 @@ archive.zip
 .*.sw?
 .cache
 
-/env
 .env
 /.venv
-.DS_Store
+.venv
+/venv
+venv
