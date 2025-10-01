@@ -27,3 +27,13 @@ class HerbalPlant(Base):
     description = Column(Text, nullable=True)
     image_url = Column(String(255), nullable=True)
     is_deleted = Column(BIT(1), nullable=False, default=0)
+
+
+class Barangay(Base):
+    __tablename__ = "barangays"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(150), nullable=False)
+    municipality = Column(String(150), nullable=False)
+    captain_official = Column(String(150), nullable=True)
+    is_deleted = Column(BIT(1), nullable=False, default=0)

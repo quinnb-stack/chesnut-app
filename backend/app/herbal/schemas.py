@@ -34,7 +34,25 @@ class HerbalPlantCreate(HerbalPlantBase):
     pass
 
 
-class User(HerbalPlantBase):
+class HerbalPlant(HerbalPlantBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
+class BarangayBase(BaseModel):
+    name: str
+    municipality: str
+    captain_official: Optional[str] = None
+    is_deleted: Optional[bool] = 0
+
+
+class BarangayCreate(BarangayBase):
+    pass
+
+
+class Barangay(BarangayBase):
     id: int
 
     class Config:
