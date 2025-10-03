@@ -1,0 +1,95 @@
+from datetime import datetime
+from typing import List, Literal, Optional
+
+from pydantic import BaseModel, constr, Field
+
+
+class UserBase(BaseModel):
+    username: Optional[constr(min_length=3, max_length=25)] = None
+    password: Optional[constr(min_length=6)] = None
+    role: Optional[Literal["admin", "super_admin"]] = None
+    is_deleted: Optional[bool] = 0
+
+
+class UserCreate(UserBase):
+    pass
+
+
+class User(UserBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
+class HerbalPlantBase(BaseModel):
+    name: str
+    scientific_name: str
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+    is_deleted: Optional[bool] = 0
+
+
+class HerbalPlantCreate(HerbalPlantBase):
+    pass
+
+
+class HerbalPlant(HerbalPlantBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
+class BarangayBase(BaseModel):
+    name: str
+    municipality: str
+    captain_official: Optional[str] = None
+    is_deleted: Optional[bool] = 0
+
+
+class BarangayCreate(BarangayBase):
+    pass
+
+
+class Barangay(BarangayBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
+class PlantGeotagBase(BaseModel):
+    plant_id: int
+    brgy_id: int
+    user_id: int
+    latitude: float = Field(..., ge=-90, le=90)  # latitude must be valid
+    longitude: float = Field(..., ge=-180, le=180)  # longitude must be valid
+
+
+class PlantGeotagCreate(PlantGeotagBase):
+    pass
+
+
+class PlantGeotag(PlantGeotagBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
+class LogBase(BaseModel):
+    user_id: int
+    action: str
+
+
+class LogCreate(LogBase):
+    pass
+
+
+class Log(LogBase):
+    id: int
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True

@@ -1,0 +1,73 @@
+import datetime
+
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Integer,
+    String,
+    Enum,
+    Text,
+    ForeignKey,
+    Numeric,
+)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.dialects.mysql import BIT
+from sqlalchemy.orm import relationship
+
+Base = declarative_base()
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String, default="NONE")
+    password = Column(String, default="NONE")
+    role = Column(Enum("admin", "super_admin", name="user_roles"), nullable=False)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    is_deleted = Column(BIT(1), default=0)
+
+    logs = relationship("Log", back_populates="user")
+
+
+class HerbalPlant(Base):
+    __tablename__ = "herbal_plants"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(150), nullable=False)
+    scientific_name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    image_url = Column(String(255), nullable=True)
+    is_deleted = Column(BIT(1), nullable=False, default=0)
+
+
+class Barangay(Base):
+    __tablename__ = "barangays"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(150), nullable=False)
+    municipality = Column(String(150), nullable=False)
+    captain_official = Column(String(150), nullable=True)
+    is_deleted = Column(BIT(1), nullable=False, default=0)
+
+
+class PlantGeotag(Base):
+    __tablename__ = "plant_geotags"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    plant_id = Column(Integer, ForeignKey("herbal_plants.id"), nullable=False)
+    brgy_id = Column(Integer, ForeignKey("barangays.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    latitude = Column(Numeric(10, 8), nullable=False)
+    longitude = Column(Numeric(11, 8), nullable=False)
+
+
+class Log(Base):
+    __tablename__ = "logs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    action = Column(String(255), nullable=False)
+    timestamp = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
+
+    user = relationship("User", back_populates="logs")

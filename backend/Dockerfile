@@ -7,8 +7,8 @@ COPY ./requirements /code/requirements
 RUN apt-get update \
     # dependencies for building Python packages
     && apt-get install -y build-essential \
-    # postgresql dependencies
-    && apt-get install -y libpq-dev \
+    # mariadb dependencies
+    && apt-get install -y default-libmysqlclient-dev \
     # Additional dependencies
     && apt-get install -y telnet netcat-traditional libcairo2-dev \
     # cleaning up unused files

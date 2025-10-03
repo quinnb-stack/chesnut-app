@@ -1,8 +1,13 @@
 from fastapi import FastAPI
 
+from .herbal import herbal
+
 app = FastAPI()
 
 
 @app.get("/")
 def read_root():
-    return {"I kiss na gad po ako babyyyyy :(((("}
+    return {"Nothing here"}
+
+
+app.mount("/herbal", herbal.app)
