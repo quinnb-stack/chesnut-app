@@ -76,3 +76,20 @@ class PlantGeotag(PlantGeotagBase):
 
     class Config:
         from_attributes = True
+
+
+class LogBase(BaseModel):
+    user_id: int
+    action: str
+
+
+class LogCreate(LogBase):
+    pass
+
+
+class Log(LogBase):
+    id: int
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True

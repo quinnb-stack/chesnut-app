@@ -12,6 +12,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.mysql import BIT
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
@@ -25,6 +26,8 @@ class User(Base):
     role = Column(Enum("admin", "super_admin", name="user_roles"), nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     is_deleted = Column(BIT(1), default=0)
+
+    logs = relationship("Log", back_populates="user")
 
 
 class HerbalPlant(Base):
@@ -57,3 +60,14 @@ class PlantGeotag(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     latitude = Column(Numeric(10, 8), nullable=False)
     longitude = Column(Numeric(11, 8), nullable=False)
+
+
+class Log(Base):
+    __tablename__ = "logs"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    action = Column(String(255), nullable=False)
+    timestamp = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
+
+    user = relationship("User", back_populates="logs")

@@ -221,3 +221,27 @@ def delete_geotag(db: Session, id: int):
     db.delete(db_item)
     db.commit()
     return db_item
+
+
+def get_logs(
+    db: Session,
+    sort_direction: str = "desc",
+    skip: int = 0,
+    limit: int = 100,
+    user_id=None,
+):
+    logs = db.query(models.Log)
+
+    if user_id is not None:
+        logs = logs.filter(models.Log.user_id == user_id)
+
+    sortable_columns = {"id": models.Log.id}
+
+    sort = (
+        sortable_columns.get("id").desc()
+        if sort_direction == "desc"
+        else sortable_columns.get("id").asc()
+    )
+
+    db_item = logs.order_by(sort).offset(skip).limit(limit).all()
+    return db_item
