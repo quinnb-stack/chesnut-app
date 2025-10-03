@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, constr, Field
 
 
 class UserBase(BaseModel):
@@ -53,6 +53,25 @@ class BarangayCreate(BarangayBase):
 
 
 class Barangay(BarangayBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
+class PlantGeotagBase(BaseModel):
+    plant_id: int
+    brgy_id: int
+    user_id: int
+    latitude: float = Field(..., ge=-90, le=90)  # latitude must be valid
+    longitude: float = Field(..., ge=-180, le=180)  # longitude must be valid
+
+
+class PlantGeotagCreate(PlantGeotagBase):
+    pass
+
+
+class PlantGeotag(PlantGeotagBase):
     id: int
 
     class Config:

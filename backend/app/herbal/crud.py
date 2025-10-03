@@ -147,3 +147,77 @@ def delete_brgy(db: Session, id: int):
     db.commit()
     db.refresh(db_item)
     return db_item
+
+
+def get_geotags(
+    db: Session,
+    sort_direction: str = "desc",
+    skip: int = 0,
+    limit: int = 100,
+    plant_id=None,
+    brgy_id=None,
+    user_id=None,
+):
+    geotags = db.query(models.PlantGeotag)
+
+    if plant_id is not None:
+        geotags = geotags.filter(models.PlantGeotag.plant_id == plant_id)
+    if brgy_id is not None:
+        geotags = geotags.filter(models.PlantGeotag.brgy_id == brgy_id)
+    if user_id is not None:
+        geotags = geotags.filter(models.PlantGeotag.user_id == user_id)
+
+    sortable_columns = {"id": models.PlantGeotag.id}
+
+    sort = (
+        sortable_columns.get("id").desc()
+        if sort_direction == "desc"
+        else sortable_columns.get("id").asc()
+    )
+
+    db_item = geotags.order_by(sort).offset(skip).limit(limit).all()
+    return db_item
+
+
+def create_geotag(db: Session, geotag: schemas.PlantGeotagCreate):
+    query = (
+        db.query(models.PlantGeotag)
+        .filter(models.PlantGeotag.plant_id == geotag.plant_id)
+        .filter(models.PlantGeotag.latitude == geotag.latitude)
+        .filter(models.PlantGeotag.longitude == geotag.longitude)
+        .first()
+    )
+
+    if query:
+        raise HTTPException(status_code=400, detail="PlantGeotag already exist.")
+
+    db_item = models.PlantGeotag(**geotag.dict())
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def update_geotag(db: Session, id: int, geotag: schemas.PlantGeotagCreate):
+    db_item = db.query(models.PlantGeotag).get(id)
+
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="PlantGeotag not found.")
+
+    db_item.latitude = geotag.latitude
+    db_item.longitude = geotag.longitude
+
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def delete_geotag(db: Session, id: int):
+    db_item = db.query(models.PlantGeotag).get(id)
+
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="PlantGeotag not found.")
+
+    db.delete(db_item)
+    db.commit()
+    return db_item

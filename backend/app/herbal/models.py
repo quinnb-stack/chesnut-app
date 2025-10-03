@@ -1,6 +1,15 @@
 import datetime
 
-from sqlalchemy import Column, DateTime, Integer, String, Enum, Text
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Integer,
+    String,
+    Enum,
+    Text,
+    ForeignKey,
+    Numeric,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.mysql import BIT
 
@@ -37,3 +46,14 @@ class Barangay(Base):
     municipality = Column(String(150), nullable=False)
     captain_official = Column(String(150), nullable=True)
     is_deleted = Column(BIT(1), nullable=False, default=0)
+
+
+class PlantGeotag(Base):
+    __tablename__ = "plant_geotags"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    plant_id = Column(Integer, ForeignKey("herbal_plants.id"), nullable=False)
+    brgy_id = Column(Integer, ForeignKey("barangays.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    latitude = Column(Numeric(10, 8), nullable=False)
+    longitude = Column(Numeric(11, 8), nullable=False)
