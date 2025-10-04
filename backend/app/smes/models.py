@@ -34,6 +34,7 @@ class User(Base):
     is_deleted = Column(BIT(1), default=0)
 
     customers = relationship("Customer", back_populates="user")
+    branches = relationship("Branch", back_populates="user")
 
 
 class Customer(Base):
@@ -45,3 +46,15 @@ class Customer(Base):
     cancel_count = Column(Integer, default=0)
 
     user = relationship("User", back_populates="customers")
+
+
+class Branch(Base):
+    __tablename__ = "branches"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    name = Column(String(255), nullable=False)
+    address = Column(String(255), nullable=True)
+    is_deleted = Column(BIT(1), default=0)
+
+    user = relationship("User", back_populates="branches")

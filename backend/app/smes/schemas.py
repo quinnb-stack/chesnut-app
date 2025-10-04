@@ -39,4 +39,22 @@ class Customer(CustomerBase):
     user_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+class BranchBase(BaseModel):
+    user_id: int
+    name: str
+    address: Optional[str] = None
+    is_deleted: Optional[bool] = 0
+
+
+class BranchCreate(BranchBase):
+    pass
+
+
+class Branch(BranchBase):
+    id: int
+
+    class Config:
+        from_attributes = True

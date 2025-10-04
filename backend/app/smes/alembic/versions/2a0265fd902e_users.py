@@ -31,9 +31,7 @@ def upgrade() -> None:
         sa.Column("address", sa.String(255), nullable=False),
         sa.Column(
             "role",
-            sa.Enum(
-                "branch_admin", "super_admin", "customer", "rider", name="user_roles"
-            ),
+            sa.Enum("admin", "super_admin", "customer", "rider", name="user_roles"),
             nullable=False,
         ),
         sa.Column(

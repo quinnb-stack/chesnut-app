@@ -49,3 +49,67 @@ def update_customer(db: Session, user_id: int, customer: schemas.CustomerCreate)
     db.commit()
     db.refresh(db_item)
     return db_item
+
+
+def get_branches(
+    db: Session, sort_direction: str = "desc", skip: int = 0, limit: int = 100
+):
+    branches = db.query(models.Branch)
+
+    sortable_columns = {"id": models.Branch.id}
+
+    sort = (
+        sortable_columns.get("id").desc()
+        if sort_direction == "desc"
+        else sortable_columns.get("id").asc()
+    )
+
+    db_item = branches.order_by(sort).offset(skip).limit(limit).all()
+    return db_item
+
+
+def create_branch(db: Session, branch: schemas.BranchCreate):
+    query = (
+        db.query(models.Branch)
+        .filter(models.Branch.name == branch.name)
+        .filter(models.Branch.is_deleted == 0)
+        .first()
+    )
+
+    if query:
+        raise HTTPException(status_code=400, detail="Branch already exist.")
+
+    db_item = models.Branch(**branch.dict())
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def update_branch(db: Session, id: int, branch: schemas.BranchCreate):
+    db_item = db.query(models.Branch).get(id)
+
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="Branch not found.")
+
+    db_item.user_id = branch.user_id
+    db_item.name = branch.name
+    db_item.address = branch.address
+    db_item.is_deleted = branch.is_deleted
+
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def delete_branch(db: Session, id: int):
+    db_item = db.query(models.Branch).get(id)
+
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="Branch not found.")
+
+    db_item.is_deleted = 1
+
+    db.commit()
+    db.refresh(db_item)
+    return db_item
