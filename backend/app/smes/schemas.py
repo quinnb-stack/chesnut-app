@@ -12,3 +12,31 @@ class UserBase(BaseModel):
     address: str
     role: Optional[Literal["admin", "super_admin", "customer", "rider"]] = None
     is_deleted: Optional[bool] = 0
+
+
+class UserCreate(UserBase):
+    pass
+
+
+class User(UserBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
+class CustomerBase(BaseModel):
+    behavioral_score: Optional[float] = 0.0
+    cancel_count: Optional[int] = 0
+
+
+class CustomerCreate(CustomerBase):
+    pass
+
+
+class Customer(CustomerBase):
+    id: int
+    user_id: int
+
+    class Config:
+        orm_mode = True

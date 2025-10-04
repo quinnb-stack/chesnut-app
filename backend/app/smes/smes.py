@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.database import DatabaseSessionMaker
 from app.smes.routers import (
     user_router,
+    customers_router,
 )
 
 app = FastAPI()
@@ -9,3 +10,4 @@ app = FastAPI()
 get_db = DatabaseSessionMaker("smes_db")
 
 app.include_router(user_router.router)
+app.include_router(customers_router.router)

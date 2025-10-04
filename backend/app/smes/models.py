@@ -26,6 +26,22 @@ class User(Base):
     name = Column(String, default="NONE")
     contact = Column(String, default="NONE")
     address = Column(String, default="NONE")
-    role = Column(Enum("admin", "super_admin", name="user_roles"), nullable=False)
+    role = Column(
+        Enum("admin", "super_admin", "customer", "rider", name="user_roles"),
+        nullable=False,
+    )
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     is_deleted = Column(BIT(1), default=0)
+
+    customers = relationship("Customer", back_populates="user")
+
+
+class Customer(Base):
+    __tablename__ = "customers"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    behavioral_score = Column(Numeric(5, 2), default=0.00)
+    cancel_count = Column(Integer, default=0)
+
+    user = relationship("User", back_populates="customers")
