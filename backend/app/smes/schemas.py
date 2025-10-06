@@ -75,3 +75,22 @@ class Rider(RiderBase):
 
     class Config:
         from_attributes = True
+
+
+class ProductBase(BaseModel):
+    name: str
+    price: float
+    image: Optional[str] = None
+    description: Optional[str] = None
+    is_deleted: Optional[bool] = 0
+
+
+class ProductCreate(ProductBase):
+    pass
+
+
+class ProductOut(ProductBase):
+    id: int
+
+    class Config:
+        from_attributes = True

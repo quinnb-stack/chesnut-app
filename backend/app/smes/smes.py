@@ -5,6 +5,7 @@ from app.smes.routers import (
     customers_router,
     branches_router,
     riders_router,
+    products_router,
 )
 
 app = FastAPI()
@@ -15,3 +16,4 @@ app.include_router(user_router.router)
 app.include_router(customers_router.router)
 app.include_router(branches_router.router)
 app.include_router(riders_router.router)
+app.include_router(products_router.router)

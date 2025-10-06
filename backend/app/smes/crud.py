@@ -177,3 +177,68 @@ def delete_rider(db: Session, id: int):
     db.commit()
     db.refresh(db_item)
     return db_item
+
+
+def get_products(
+    db: Session, sort_direction: str = "desc", skip: int = 0, limit: int = 100
+):
+    products = db.query(models.Product)
+
+    sortable_columns = {"id": models.Product.id}
+
+    sort = (
+        sortable_columns.get("id").desc()
+        if sort_direction == "desc"
+        else sortable_columns.get("id").asc()
+    )
+
+    db_item = products.order_by(sort).offset(skip).limit(limit).all()
+    return db_item
+
+
+def create_product(db: Session, product: schemas.ProductCreate):
+    query = (
+        db.query(models.Product)
+        .filter(models.Product.name == product.name)
+        .filter(models.Product.is_deleted == 0)
+        .first()
+    )
+
+    if query:
+        raise HTTPException(status_code=409, detail="Product already exist.")
+
+    db_item = models.Product(**product.dict())
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def update_product(db: Session, id: int, product: schemas.ProductCreate):
+    db_item = db.query(models.Product).get(id)
+
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="Product not found.")
+
+    db_item.name = product.name
+    db_item.price = product.price
+    db_item.image = product.image
+    db_item.description = product.description
+    db_item.is_deleted = product.is_deleted
+
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def delete_product(db: Session, id: int):
+    db_item = db.query(models.Product).get(id)
+
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="Product not found.")
+
+    db_item.is_deleted = 1
+
+    db.commit()
+    db.refresh(db_item)
+    return db_item

@@ -65,10 +65,21 @@ class Branch(Base):
 class Rider(Base):
     __tablename__ = "riders"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, index=True)
     branch_id = Column(Integer, ForeignKey("branches.id"), nullable=False, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     is_deleted = Column(BIT(1), default=0)
 
     branch = relationship("Branch", back_populates="riders")
     user = relationship("User", back_populates="riders")
+
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    price = Column(Numeric(10, 2), default=0.00)
+    image = Column(String(255), default="NONE")
+    description = Column(String(255), default="NONE")
+    is_deleted = Column(BIT(1), default=0)
