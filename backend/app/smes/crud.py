@@ -77,7 +77,7 @@ def create_branch(db: Session, branch: schemas.BranchCreate):
     )
 
     if query:
-        raise HTTPException(status_code=400, detail="Branch already exist.")
+        raise HTTPException(status_code=409, detail="Branch already exist.")
 
     db_item = models.Branch(**branch.dict())
     db.add(db_item)
@@ -107,6 +107,70 @@ def delete_branch(db: Session, id: int):
 
     if db_item is None:
         raise HTTPException(status_code=404, detail="Branch not found.")
+
+    db_item.is_deleted = 1
+
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def get_riders(
+    db: Session, sort_direction: str = "desc", skip: int = 0, limit: int = 100
+):
+    riders = db.query(models.Rider)
+
+    sortable_columns = {"id": models.Rider.id}
+
+    sort = (
+        sortable_columns.get("id").desc()
+        if sort_direction == "desc"
+        else sortable_columns.get("id").asc()
+    )
+
+    db_item = riders.order_by(sort).offset(skip).limit(limit).all()
+    return db_item
+
+
+def assign_rider(db: Session, rider: schemas.RiderCreate):
+    query = (
+        db.query(models.Rider)
+        .filter(models.Rider.branch_id == rider.branch_id)
+        .filter(models.Rider.is_deleted == 0)
+        .first()
+    )
+
+    if query:
+        raise HTTPException(
+            status_code=409, detail="Rider already assigned to your branch."
+        )
+
+    db_item = models.Rider(**rider.dict())
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def re_assign_rider(db: Session, user_id: int, rider: schemas.RiderCreate):
+    db_item = db.query(models.Rider).filter(models.Rider.user_id == user_id).first()
+
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="Rider not found.")
+
+    db_item.branch_id = rider.branch_id
+    db_item.is_deleted = rider.is_deleted
+
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def delete_rider(db: Session, id: int):
+    db_item = db.query(models.Rider).get(id)
+
+    if db_item is None:
+        raise HTTPException(status_code=404, detail="Rider not found.")
 
     db_item.is_deleted = 1
 

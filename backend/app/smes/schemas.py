@@ -58,3 +58,20 @@ class Branch(BranchBase):
 
     class Config:
         from_attributes = True
+
+
+class RiderBase(BaseModel):
+    branch_id: int
+    user_id: int
+    is_deleted: Optional[bool] = 0
+
+
+class RiderCreate(RiderBase):
+    pass
+
+
+class Rider(RiderBase):
+    id: int
+
+    class Config:
+        from_attributes = True

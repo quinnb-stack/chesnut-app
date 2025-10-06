@@ -35,6 +35,7 @@ class User(Base):
 
     customers = relationship("Customer", back_populates="user")
     branches = relationship("Branch", back_populates="user")
+    riders = relationship("Rider", back_populates="user")
 
 
 class Customer(Base):
@@ -58,3 +59,16 @@ class Branch(Base):
     is_deleted = Column(BIT(1), default=0)
 
     user = relationship("User", back_populates="branches")
+    riders = relationship("Rider", back_populates="branch")
+
+
+class Rider(Base):
+    __tablename__ = "riders"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    branch_id = Column(Integer, ForeignKey("branches.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    is_deleted = Column(BIT(1), default=0)
+
+    branch = relationship("Branch", back_populates="riders")
+    user = relationship("User", back_populates="riders")
