@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from . import models, schemas
 from fastapi import HTTPException
 
@@ -110,6 +110,65 @@ def delete_branch(db: Session, id: int):
 
     db_item.is_deleted = 1
 
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def get_branch_products(db: Session, branch_id: int):
+
+    branch = (
+        db.query(models.Branch)
+        .options(
+            joinedload(models.Branch.branch_products).joinedload(
+                models.BranchProduct.product
+            )
+        )
+        .filter(models.Branch.id == branch_id)
+        .first()
+    )
+
+    if branch is None:
+        raise HTTPException(status_code=404, detail="Branch not found.")
+
+    branch_data = {
+        "id": branch.id,
+        "name": branch.name,
+        "address": branch.address,
+        "user_id": branch.user_id,
+        "is_deleted": branch.is_deleted,
+        "products": [],
+    }
+
+    for bp in branch.branch_products:
+        if bp.product and bp.product.is_deleted == 0:
+            branch_data["products"].append(
+                {
+                    "id": bp.product.id,
+                    "name": bp.product.name,
+                    "price": bp.product.price,
+                    "description": bp.product.description,
+                    "image": bp.product.image,
+                    "quantity": bp.quantity,
+                    "is_deleted": bp.product.is_deleted,
+                }
+            )
+
+    return branch_data
+
+
+def create_branch_product(db: Session, branch_product: schemas.BranchProductCreate):
+    query = (
+        db.query(models.BranchProduct)
+        .filter(models.BranchProduct.product_id == branch_product.product_id)
+        .first()
+    )
+
+    if query:
+        raise HTTPException(status_code=409, detail="Branch product already exist.")
+
+    db_item = models.BranchProduct(**branch_product.dict())
+    db.add(db_item)
     db.commit()
     db.refresh(db_item)
     return db_item
