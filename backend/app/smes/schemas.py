@@ -89,8 +89,35 @@ class ProductCreate(ProductBase):
     pass
 
 
-class ProductOut(ProductBase):
+class Product(ProductBase):
     id: int
 
     class Config:
         from_attributes = True
+
+
+class BranchProductBase(BaseModel):
+    product_id: int
+    branch_id: int
+    quantity: int
+
+
+class BranchProductCreate(BranchProductBase):
+    pass
+
+
+class BranchProduct(BranchProductBase):
+    id: int
+    product: Optional[Product] = None
+    branch: Optional[Branch] = None
+
+    class Config:
+        from_attributes = True
+
+
+class BranchWithProducts(BaseModel):
+    branch_id: int
+    products: List[Product]
+
+    class Config:
+        orm_mode = True

@@ -60,6 +60,7 @@ class Branch(Base):
 
     user = relationship("User", back_populates="branches")
     riders = relationship("Rider", back_populates="branch")
+    branch_products = relationship("BranchProduct", back_populates="branch")
 
 
 class Rider(Base):
@@ -83,3 +84,17 @@ class Product(Base):
     image = Column(String(255), default="NONE")
     description = Column(String(255), default="NONE")
     is_deleted = Column(BIT(1), default=0)
+
+    branch_products = relationship("BranchProduct", back_populates="product")
+
+
+class BranchProduct(Base):
+    __tablename__ = "branch_products"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    product_id = Column(Integer, ForeignKey("products.id"))
+    branch_id = Column(Integer, ForeignKey("branches.id"))
+    quantity = Column(Integer, default=0)
+
+    product = relationship("Product", back_populates="branch_products")
+    branch = relationship("Branch", back_populates="branch_products")

@@ -1,3 +1,4 @@
+from typing import List
 from sqlalchemy.orm import Session
 
 from app.smes import crud, schemas
@@ -38,3 +39,16 @@ async def update_branch(
 async def delete_branch(id: int, db: Session = Depends(get_db)):
 
     return crud.delete_branch(db=db, id=id)
+
+
+@router.get("/{branch_id}/products")
+def get_branch_products(branch_id: int, db: Session = Depends(get_db)):
+    return crud.get_branch_products(db, branch_id)
+
+
+@router.post("/{branch_id}/products")
+async def create_branch_product(
+    branch_product: schemas.BranchProductCreate, db: Session = Depends(get_db)
+):
+
+    return crud.create_branch_product(db=db, branch_product=branch_product)
